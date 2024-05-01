@@ -63,7 +63,7 @@ class Blockchain:
         check_proof = False
 
         while check_proof is False:
-            hash_operation = hashlib.sha256(
+            hash_operation = hashlib.sha512(
                 str(new_proof**2 - previous_proof**2).encode()).hexdigest()
             if hash_operation[:5] == '00000':
                 check_proof = True
@@ -74,7 +74,7 @@ class Blockchain:
 
     def hash(self, block):
         encoded_block = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(encoded_block).hexdigest()
+        return hashlib.sha512(encoded_block).hexdigest()
 
     def chain_valid(self, chain):
         previous_block = chain[0]
@@ -87,7 +87,7 @@ class Blockchain:
 
             previous_proof = previous_block['proof']
             proof = block['proof']
-            hash_operation = hashlib.sha256(
+            hash_operation = hashlib.sha512(
                 str(proof**2 - previous_proof**2).encode()).hexdigest()
 
             if hash_operation[:5] != '00000':
