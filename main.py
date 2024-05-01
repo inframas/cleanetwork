@@ -32,7 +32,7 @@ class Blockchain:
             with open('blockchain.json', 'r') as file:
                 self.chain = json.load(file)
         except FileNotFoundError:
-            self.create_block(proof=1, previous_hash='0')
+            self.create_block(proof=1, previous_hash='0', transactions=[])  # Provide an empty list of transactions
 
     # Save blockchain to file
     def save_chain(self):
@@ -42,11 +42,12 @@ class Blockchain:
     # This function is created
     # to add further blocks
     # into the chain
-    def create_block(self, proof, previous_hash):
+    def create_block(self, proof, previous_hash, transactions):
         block = {'index': len(self.chain) + 1,
                 'timestamp': str(datetime.datetime.now()),
                 'proof': proof,
-                'previous_hash': previous_hash}
+                'previous_hash': previous_hash,
+                'transaction': transactions}
         self.chain.append(block)
         self.save_chain()  # Save after adding block
         return block
@@ -106,13 +107,16 @@ app = Flask(__name__)
 blockchain = Blockchain()
 
 # Mining a new block
-@app.route('/mine_block', methods=['GET'])
+@app.route('/create_transactions', methods=['GET'])
 def mine_block():
     previous_block = blockchain.print_previous_block()
     previous_proof = previous_block['proof']
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-    block = blockchain.create_block(proof, previous_hash)
+    transactions = {
+        "test" : "test"
+    }
+    block = blockchain.create_block(proof, previous_hash, transactions)
 
     response = {'message': 'A block is MINED',
                 'index': block['index'],
