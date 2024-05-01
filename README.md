@@ -4,4 +4,5 @@ Clean Network is currently a blockchain network that provides cryptocurrency, NF
 
 ## How to run Node
 docker build -t inframas/cleanetwork-node:local .
+
 docker run --name cleanetwork-node -p 80:80 -d inframas/cleanetwork-node:local
