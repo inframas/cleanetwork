@@ -8,6 +8,7 @@ class Blockchain:
     def __init__(self):
         self.chain = []
         self.transactions = []
+        self.max_tokens = 1900000000  # Maximum token supply
         self.create_block(proof=1, previous_hash='0')
 
     def create_block(self, proof, previous_hash):
@@ -26,6 +27,12 @@ class Blockchain:
         return self.chain[-1]
 
     def add_transaction(self, sender, recipient, amount):
+        # Check if adding this transaction would exceed the maximum token supply
+        total_tokens = sum(tx['amount'] for tx in self.transactions) + amount
+        if total_tokens > self.max_tokens:
+            return 'Exceeds maximum token supply', 400
+
+        # If not, add the transaction as before
         self.transactions.append({
             'sender': sender,
             'recipient': recipient,
@@ -64,6 +71,16 @@ class Blockchain:
             previous_block = block
             block_index += 1
         return True
+
+    def get_wallet_balance(self, wallet_address):
+        balance = 0
+        for block in self.chain:
+            for tx in block['transactions']:
+                if tx['recipient'] == wallet_address:
+                    balance += tx['amount']
+                if tx['sender'] == wallet_address:
+                    balance -= tx['amount']
+        return balance
 
 app = Flask(__name__)
 blockchain = Blockchain()
@@ -109,6 +126,12 @@ def get_chain():
 def is_valid():
     is_valid = blockchain.is_chain_valid(blockchain.chain)
     response = {'message': 'The blockchain is valid.'} if is_valid else {'message': 'The blockchain is not valid.'}
+    return jsonify(response), 200
+
+@app.route('/wallet_balance/<wallet_address>', methods=['GET'])
+def get_wallet_balance(wallet_address):
+    balance = blockchain.get_wallet_balance(wallet_address)
+    response = {'wallet_address': wallet_address, 'balance': balance}
     return jsonify(response), 200
 
 app.run(host='127.0.0.1', port=5000)
