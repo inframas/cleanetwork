@@ -13,7 +13,7 @@ def measure_create_transactions_time():
 
     return total_time
 
-for x in range(100):
+for x in range(100000):
 
     # Call the function to measure the time
     total_time = measure_create_transactions_time()
